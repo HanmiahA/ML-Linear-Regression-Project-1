@@ -1,0 +1,78 @@
+---
+title: "ML Linear Regression Project"
+author: "Ankita Hanmiah"
+date: "February 28, 2019"
+output: pdf_document
+---
+
+states.data <- readRDS("dataSets/states.rds")
+
+###Exercise 1: Least Squares Regression
+
+## Use the /states.rds/ data set. Fit a model predicting energy consumed per capita (energy) from the percentage of residents living in metropolitan areas (metro). Be sure to:
+
+##   1. Examine/plot the data before fitting the model
+##   2. Print and interpret the model `summary'
+##   3. `plot' the model to look for deviations from modeling assumptions
+
+```{r}
+met.energy <- subset(na.omit(states.data), select = c("metro", "energy"))
+summary(met.energy)
+plot(energy ~ metro, data = met.energy)
+cor(x = met.energy$metro, y = met.energy$energy)
+```
+From the plot and looking at the correlation coefficient (which is -0.3117), we
+can see that there is a negative relationship between residents living in metropolitan
+areas and energy consumed per capita, and that it is not a strong relationship
+
+```{r}
+met.energy.lm <- lm(energy ~ metro, data = na.omit(states.data))
+summary(met.energy.lm)
+```
+The negative relationship we expected based on the correlation coefficient is
+supported by the negative coefficient in the linear regression model. We also
+see with the above model that metro has slight significance in this model but
+the R squared value is very low at 0.1154, which indicates that the data's fit to the 
+line is not that strong.
+
+
+##   Select one or more additional predictors to add to your model and
+##   repeat steps 1-3. Is this model significantly better than the model
+##   with /metro/ as the only predictor?
+
+```{r}
+summary(lm(energy ~ metro + green, data = na.omit(states.data)))
+```
+Adding the variable of greenhouse gas percentage showed a very significant relationship
+between greenhouse gas and energy consumption, and though it did take the significance 
+away from the relationship between energy consumption and percentage of metropolitan residents,
+it raised the R squared value to 0.5939.
+```{r}
+summary(lm(energy ~ metro + green + toxic, data = states.data))
+```
+
+Adding another predictor of toxics released gives us high significance for greenhouse gas and 
+toxics released, with still no significance for metropolitan area residents. The R squared value
+jumped up to 0.7644 with the addition of this predictor.
+
+###Exercise 2: Interactions and Factors
+
+## Use the states data set.
+
+##   1. Add on to the regression equation that you created in exercise 1 by
+##      generating an interaction term and testing the interaction.
+```{r}
+energy.metro.green <- lm(energy ~ metro*green, data=states.data)
+coef(summary(energy.metro.green))
+```
+The interaction term we created was metro*green and as seen by the p-value (.00036), the
+interaction between metro and green is very significant.
+
+##   2. Try adding region to the model. Are there significant differences
+##      across the four regions?
+```{r}
+states.data$region <- factor(states.data$region)
+metro.region <- lm(metro ~ region, data = states.data)
+coef(summary(metro.region))
+```
+There are no significant differences across the northeast, midwest, and south. 
