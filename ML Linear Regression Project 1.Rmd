@@ -5,7 +5,11 @@ date: "February 28, 2019"
 output: pdf_document
 ---
 
-states.data <- readRDS("dataSets/states.rds")
+```{r}
+library(tidyverse)
+states.data <- readRDS(file = "dataSets/states.rds") %>%
+  as_tibble
+```
 
 ###Exercise 1: Least Squares Regression
 
@@ -71,8 +75,7 @@ interaction between metro and green is very significant.
 ##   2. Try adding region to the model. Are there significant differences
 ##      across the four regions?
 ```{r}
-states.data$region <- factor(states.data$region)
-metro.region <- lm(metro ~ region, data = states.data)
+metro.region <- lm(metro*green ~ region, data = states.data)
 coef(summary(metro.region))
 ```
-There are no significant differences across the northeast, midwest, and south. 
+There are no significant differences across the regions.
